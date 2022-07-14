@@ -94,6 +94,11 @@ const renderCountry = function (data, className = '') {
 
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
+
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+  countriesContainer.style.opacity = 1;
+};
 //
 
 const getCountryData = function (country) {
@@ -110,7 +115,35 @@ const getCountryData = function (country) {
       return fetch(`https://restcountries.com/v2/alpha/${neighbour}`);
     })
     .then(response => response.json())
-    .then(data => renderCountry(data, 'neighbour'));
+    .then(data => renderCountry(data, 'neighbour'))
+    .catch(err => {
+      console.error(`CL error bro`);
+      renderError(`Main page error:\nSomething went wrong.\n ${err.message}`);
+    });
 };
 
-getCountryData('south africa');
+// getCountryData('south africa');
+
+/////////////////////////////////////
+//coding challenge #1
+// const lat = -33.915;
+// const lng = 18.423;
+
+const whereAmI = function (lat, lng) {
+  fetch(
+    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+  )
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      console.log(`You are in ${data.city}, ${data.countryName}.`);
+      getCountryData(data.countryName);
+    })
+    .catch(err => {
+      console.error(`Some error bro: ${err.message}⭐`);
+    });
+};
+
+whereAmI('-33.9258400', '18.4232200'); //CPT
+whereAmI(52.508, 13, 138); //Germany
+whereAmI(19.037, 72.873); //Mumbai india? err here
