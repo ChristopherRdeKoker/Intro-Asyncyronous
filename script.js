@@ -182,3 +182,24 @@ const whereAmI = function (lat, lng) {
 whereAmI(52.508, 13.381);
 whereAmI(19.037, 72.873);
 whereAmI(-33.933, 18.474);
+//////////////////////////
+//promisifying practice
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+wait(1)
+  .then(() => {
+    console.log('1 secs passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('2 secs passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('3 secs passed');
+    return wait(1);
+  });
