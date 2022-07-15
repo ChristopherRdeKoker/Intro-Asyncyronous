@@ -104,7 +104,10 @@ const renderError = function (msg) {
 const getCountryData = function (country) {
   // Country 1
   fetch(`https://restcountries.com/v2/name/${country}`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response) throw new Error(`New throw error 🌲`);
+      return response.json();
+    })
     .then(data => {
       renderCountry(data[0]);
       const neighbour = data[0].borders[0];
@@ -114,11 +117,14 @@ const getCountryData = function (country) {
       //country 2
       return fetch(`https://restcountries.com/v2/alpha/${neighbour}`);
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response) throw new Error(`New throw error 🌲`);
+      return response.json();
+    })
     .then(data => renderCountry(data, 'neighbour'))
     .catch(err => {
       console.error(`CL error bro`);
-      renderError(`Main page error:\nSomething went wrong.\n ${err.message}`);
+      renderError(`${err.message}😥🌟🐉🐉😥`);
     });
 };
 
@@ -129,21 +135,50 @@ const getCountryData = function (country) {
 // const lat = -33.915;
 // const lng = 18.423;
 
+// const whereAmI = function (lat, lng) {
+//   fetch(
+//     `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+//   )
+//     .then(response => {
+//       // console.log(response);
+//       if (!response) throw new Error(`Issue with geocoding ${response.status}`);
+//       return response.json();
+//     })
+//     .then(data => {
+//       console.log(data);
+//       console.log(`You are in ${data.city}, ${data.countryName}.`);
+//       getCountryData(data.countryName);
+//     })
+//     .catch(err => console.log(`${err.message}⭐`));
+// };
+//////////////////////////////////
+// whereAmI('-33.9258400', '18.4232200'); //CPT
+// whereAmI(52.508, 13, 138); //Germany
+// whereAmI(19.037, 72.873); //Mumbai india? err here
+// whereAmI(19.037, 72.873); //Mumbai india? err here
+
 const whereAmI = function (lat, lng) {
   fetch(
     `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
   )
-    .then(response => response.json())
+    .then(res => {
+      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+      return res.json();
+    })
     .then(data => {
       console.log(data);
-      console.log(`You are in ${data.city}, ${data.countryName}.`);
-      getCountryData(data.countryName);
-    })
-    .catch(err => {
-      console.error(`Some error bro: ${err.message}⭐`);
-    });
-};
+      console.log(`You are in ${data.city}, ${data.countryName}`);
 
-whereAmI('-33.9258400', '18.4232200'); //CPT
-whereAmI(52.508, 13, 138); //Germany
-whereAmI(19.037, 72.873); //Mumbai india? err here
+      return fetch(`https://restcountries.com/v2/name/${data.countryName}`);
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Country not found (${res.status})`);
+
+      return res.json();
+    })
+    .then(data => renderCountry(data[0]))
+    .catch(err => console.error(`${err.message} 💥`));
+};
+whereAmI(52.508, 13.381);
+whereAmI(19.037, 72.873);
+whereAmI(-33.933, 18.474);
