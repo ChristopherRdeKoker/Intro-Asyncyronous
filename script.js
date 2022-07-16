@@ -157,31 +157,31 @@ const getCountryData = function (country) {
 // whereAmI(19.037, 72.873); //Mumbai india? err here
 // whereAmI(19.037, 72.873); //Mumbai india? err here
 
-const whereAmI = function (lat, lng) {
-  fetch(
-    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
-  )
-    .then(res => {
-      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      console.log(data);
-      console.log(`You are in ${data.city}, ${data.countryName}`);
+// const whereAmI = function (lat, lng) {
+//   fetch(
+//     `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+//   )
+//     .then(res => {
+//       if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+//       return res.json();
+//     })
+//     .then(data => {
+//       console.log(data);
+//       console.log(`You are in ${data.city}, ${data.countryName}`);
 
-      return fetch(`https://restcountries.com/v2/name/${data.countryName}`);
-    })
-    .then(res => {
-      if (!res.ok) throw new Error(`Country not found (${res.status})`);
+//       return fetch(`https://restcountries.com/v2/name/${data.countryName}`);
+//     })
+//     .then(res => {
+//       if (!res.ok) throw new Error(`Country not found (${res.status})`);
 
-      return res.json();
-    })
-    .then(data => renderCountry(data[0]))
-    .catch(err => console.error(`${err.message} 💥`));
-};
-whereAmI(52.508, 13.381);
-whereAmI(19.037, 72.873);
-whereAmI(-33.933, 18.474);
+//       return res.json();
+//     })
+//     .then(data => renderCountry(data[0]))
+//     .catch(err => console.error(`${err.message} 💥`));
+// };
+// whereAmI(52.508, 13.381);
+// whereAmI(19.037, 72.873);
+// whereAmI(-33.933, 18.474);
 //////////////////////////
 //promisifying practice
 const wait = function (seconds) {
@@ -190,16 +190,62 @@ const wait = function (seconds) {
   });
 };
 
-wait(1)
-  .then(() => {
-    console.log('1 secs passed');
-    return wait(1);
-  })
-  .then(() => {
-    console.log('2 secs passed');
-    return wait(1);
-  })
-  .then(() => {
-    console.log('3 secs passed');
-    return wait(1);
+// wait(1)
+//   .then(() => {
+//     console.log('1 secs passed');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('2 secs passed');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('3 secs passed');
+//     return wait(1);
+//   });
+////////////////////////////////////////////
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(
+      position => resolve(position),
+      err => reject(err)
+    );
   });
+};
+
+const whereAmI = function () {
+  getPosition()
+    .then(pos => {
+      //position
+      if (!pos) throw new Error(`Here bro🌟`);
+      const { latitude: lat, longitude: lng } = pos.coords;
+      // console.log(pos);
+      return fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+      );
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      console.log(data);
+      console.log(
+        `You are in ${data.city ? data.city : data.continent}, ${
+          data.countryName
+        }. `
+      );
+      return fetch(`https://restcountries.com/v2/name/${data.countryName}`);
+    })
+    .then(res => {
+      // console.log(res);
+      if (!res) throw new Error(`2nd fetch error`);
+      return res.json();
+    })
+    .then(data => renderCountry(data[0]))
+    .catch(err => console.error(`${err.message}`));
+};
+
+// whereAmI(52.508, 13.381);
+whereAmI();
+////////////////////////////////////////////////////////////////
