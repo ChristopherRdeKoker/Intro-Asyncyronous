@@ -187,6 +187,7 @@ const getCountryData = function (country) {
 const wait = function (seconds) {
   return new Promise(function (resolve) {
     setTimeout(resolve, seconds * 1000);
+    console.log(`Times up~`);
   });
 };
 
@@ -229,7 +230,7 @@ const whereAmI = function () {
       return res.json();
     })
     .then(data => {
-      console.log(data);
+      // console.log(data);
       console.log(
         `You are in ${data.city ? data.city : data.continent}, ${
           data.countryName
@@ -247,5 +248,72 @@ const whereAmI = function () {
 };
 
 // whereAmI(52.508, 13.381);
-whereAmI();
+// whereAmI();
 ////////////////////////////////////////////////////////////////
+//code challenge #2: createImg
+// const imgContainer = document.querySelector('.images');
+
+// const createImage = function (imgPath) {
+//   return new Promise(function (resolve, reject) {
+//     const img = document.createElement('img');
+//     img.src = imgPath;
+
+//     img.addEventListener('load', function () {
+//       imgContainer.append(img);
+//       resolve(img);
+//     });
+
+//     img.addEventListener('error', function () {
+//       reject(new Error(`🤐 Img not found`));
+//     });
+//     err => reject(err);
+//   });
+// };
+
+// createImage();
+let currentImg;
+const imgContainer = document.querySelector('.images');
+
+const createImage = function (imgPath) {
+  return new Promise(function (resolve, reject) {
+    const img = document.createElement('img');
+    img.src = imgPath;
+    // console.log(img);
+    // console.log(currentImg);
+
+    img.addEventListener('load', function () {
+      imgContainer.append(img);
+      resolve(img);
+    });
+
+    img.addEventListener('error', function () {
+      reject(new Error(`Failed to load images 🐶`));
+    });
+  });
+};
+
+createImage('img/img-1.jpg')
+  .then(img => {
+    currentImg = img;
+    console.log(`image 1 loaded +`);
+    return wait(2);
+  })
+  .then(() => {
+    currentImg.style.display = 'none';
+    return createImage('img/img-2.jpg');
+  })
+  .then(img => {
+    currentImg = img;
+    console.log(`image 2 loaded`);
+    return wait(2);
+  })
+  .then(() => {
+    currentImg.style.display = 'none';
+    return createImage('img/img-3.jpg');
+  })
+  .then(img => {
+    console.log(`image 3 loaded`);
+    currentImg = img;
+    return wait(2);
+  })
+  .catch(err => console.error(err));
