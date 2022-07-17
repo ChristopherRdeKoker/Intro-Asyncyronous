@@ -214,38 +214,38 @@ const getPosition = function () {
   });
 };
 
-const whereAmI = function () {
-  getPosition()
-    .then(pos => {
-      //position
-      if (!pos) throw new Error(`Here bro🌟`);
-      const { latitude: lat, longitude: lng } = pos.coords;
-      // console.log(pos);
-      return fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
-      );
-    })
-    .then(res => {
-      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      // console.log(data);
-      console.log(
-        `You are in ${data.city ? data.city : data.continent}, ${
-          data.countryName
-        }. `
-      );
-      return fetch(`https://restcountries.com/v2/name/${data.countryName}`);
-    })
-    .then(res => {
-      // console.log(res);
-      if (!res) throw new Error(`2nd fetch error`);
-      return res.json();
-    })
-    .then(data => renderCountry(data[0]))
-    .catch(err => console.error(`${err.message}`));
-};
+// const whereAmI = function () {
+//   getPosition()
+//     .then(pos => {
+//       //position
+//       if (!pos) throw new Error(`Here bro🌟`);
+//       const { latitude: lat, longitude: lng } = pos.coords;
+//       // console.log(pos);
+//       return fetch(
+//         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+//       );
+//     })
+//     .then(res => {
+//       if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+//       return res.json();
+//     })
+//     .then(data => {
+//       // console.log(data);
+//       console.log(
+//         `You are in ${data.city ? data.city : data.continent}, ${
+//           data.countryName
+//         }. `
+//       );
+//       return fetch(`https://restcountries.com/v2/name/${data.countryName}`);
+//     })
+//     .then(res => {
+//       // console.log(res);
+//       if (!res) throw new Error(`2nd fetch error`);
+//       return res.json();
+//     })
+//     .then(data => renderCountry(data[0]))
+//     .catch(err => console.error(`${err.message}`));
+// };
 
 // whereAmI(52.508, 13.381);
 // whereAmI();
@@ -340,6 +340,7 @@ const createImage = function (imgPath) {
   });
 };
 
+/*
 createImage('img/img-1.jpg')
   .then(img => {
     console.log(`Image 1 loaded+`);
@@ -366,3 +367,15 @@ createImage('img/img-1.jpg')
   })
   .catch(err => console.error(err));
 //////////////////////////
+*/
+//refactored using async & await
+
+const whereAmI = async function (country) {
+  const res = await fetch(`
+    https://restcountries.com/v2/name/${country}`);
+  const data = await res.json();
+  console.log(data);
+  renderCountry(data[0]);
+};
+
+whereAmI('south africa');
