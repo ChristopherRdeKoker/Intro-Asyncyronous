@@ -205,14 +205,6 @@ const wait = function (seconds) {
 //     return wait(1);
 //   });
 ////////////////////////////////////////////
-const getPosition = function () {
-  return new Promise(function (resolve, reject) {
-    navigator.geolocation.getCurrentPosition(
-      position => resolve(position),
-      err => reject(err)
-    );
-  });
-};
 
 // const whereAmI = function () {
 //   getPosition()
@@ -369,13 +361,54 @@ createImage('img/img-1.jpg')
 //////////////////////////
 */
 //refactored using async & await
-
-const whereAmI = async function (country) {
-  const res = await fetch(`
-    https://restcountries.com/v2/name/${country}`);
-  const data = await res.json();
-  console.log(data);
-  renderCountry(data[0]);
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(
+      position => resolve(position),
+      err => reject(err)
+    );
+  });
 };
 
-whereAmI('south africa');
+// const whereAmITest = async function (country) {
+//   const res = await fetch(`
+//     https://restcountries.com/v2/name/${country}`);
+//   const data = await res.json();
+//   // console.log(data);
+//   renderCountry(data[0]);
+// };
+
+// whereAmITest('south africa');
+///////////////
+
+//Above example, with try+catch block
+
+const whereAmI = async function () {
+  try {
+    const pos = await getPosition();
+    const { latitude: lat, longitude: lng } = pos.coords;
+
+    //reverse geociding
+    const resGeo = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+    );
+    if (!resGeo) throw new Error(`Problem getting location data 🤐`);
+
+    const dataGeo = await resGeo.json();
+    // console.log(dataGeo);
+
+    //country data
+    const res = await fetch(
+      `https://restcountries.com/v2/name/${dataGeo.countryName}`
+    );
+    // console.log(res);
+    if (!res) throw new Error(`Problem with country`);
+    const data = await res.json();
+    // console.log(data);
+    renderCountry(data[0]);
+  } catch (err) {
+    console.log(`${err} 👀`);
+  }
+};
+
+whereAmI();
